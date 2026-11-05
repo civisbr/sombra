@@ -39,7 +39,7 @@ for (const f of gj.features) {
   p.vuln = p.sensitivity != null && p.low_adaptation != null ? (p.sensitivity + p.low_adaptation) / 2 : null;
 }
 const median = (p) => quantile(values(p), 0.5);
-const medians = { ndvi: median("ndvi"), exposure: median("exposure"), pop65: quantile(values("pop_65plus"), 0.75) };
+const medians = { ndvi: median("ndvi"), exposure: median("exposure"), pop60: quantile(values("pop_60plus"), 0.75) };
 
 function fillExpression(layer) {
   if (layer === "priority") {
@@ -136,7 +136,7 @@ map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-ri
 
 const equipFC = {
   type: "FeatureCollection",
-  features: actions.cooling.map((e) => ({
+  features: actions.cooling.slice(0, 60).map((e) => ({
     type: "Feature",
     geometry: { type: "Point", coordinates: [e.lon, e.lat] },
     properties: { name: e.name, kind: e.kind, population: e.population, radius_m: e.radius_m },
@@ -183,7 +183,7 @@ map.on("load", () => {
     type: "circle",
     source: "equip",
     paint: {
-      "circle-radius": 6,
+      "circle-radius": ["interpolate", ["linear"], ["zoom"], 9, 3, 14, 6],
       "circle-color": ["match", ["get", "kind"], "ubs", EQUIP_COLORS.ubs, "escola", EQUIP_COLORS.escola, EQUIP_COLORS.biblioteca],
       "circle-stroke-color": "#fff",
       "circle-stroke-width": 2,
@@ -251,12 +251,12 @@ function select(id) {
   const reasons = [];
   if (p.ndvi != null && p.ndvi <= medians.ndvi) reasons.push("Pouca cobertura vegetal");
   if (p.exposure != null && p.exposure >= 0.75) reasons.push("Maior exposição ao calor");
-  if (p.pop_65plus != null && p.pop_65plus >= medians.pop65) reasons.push("Mais pessoas que precisam de proteção");
+  if (p.pop_60plus != null && p.pop_60plus >= medians.pop60) reasons.push("Mais pessoas que precisam de proteção");
   const ul = el("ul", { class: "checks" });
   if (reasons.length === 0) ul.append(el("li", { class: "none", text: "Nenhum fator se destaca em relação à cidade" }));
   for (const r of reasons) ul.append(el("li", { text: r }));
   body.append(ul);
-  body.append(el("p", { class: "small", text: `${fmt(p.population)} moradores (${fmt(p.pop_65plus)} com 65+) · anomalia de calor ${fmt(p.lst_anomaly_mean, 2)} °C · NDVI ${fmt(p.ndvi, 2)} · UBS a ${fmt(p.dist_ubs_m)} m` }));
+  body.append(el("p", { class: "small", text: `${fmt(p.population)} moradores (${fmt(p.pop_60plus)} com 60+) · anomalia de calor ${fmt(p.lst_anomaly_mean, 2)} °C · NDVI ${fmt(p.ndvi, 2)}${p.dist_ubs_m != null ? ` · UBS a ${fmt(p.dist_ubs_m)} m` : ""}` }));
   body.append(el("a", { class: "btn", href: `prioridades.html?cidade=${code}#arborizar`, text: "Ver ações recomendadas →" }));
   body.append(el("p", { class: "small", style: "margin-top:10px", text: `Fontes: ${meta.sources.map((s) => s.name).join(" · ")}. Referência: ${meta.reference_date}.` }));
   return true;

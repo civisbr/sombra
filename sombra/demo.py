@@ -96,7 +96,7 @@ def build_demo(city: City, n_sectors: int = 220) -> DemoCity:
     dist_ubs = np.clip(250 + 1500 * (1 - density) + 600 * poverty + rng.normal(0, 150, n), 80, None)
 
     census = {
-        "pct_65plus": pct65,
+        "pct_60plus": pct65,
         "pct_0_4": pct04,
         "income": income,
         "pct_black_brown": black_brown,

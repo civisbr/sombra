@@ -53,9 +53,13 @@ def test_end_to_end_is_deterministic(tmp_path, monkeypatch):
     assert outs[0] == outs[1]
 
 
-def test_real_run_fails_clearly_when_not_implemented(capsys):
+def test_real_run_fails_clearly_without_lst_cache(capsys, monkeypatch, tmp_path):
+    import sombra.config as cfg
+
+    monkeypatch.setattr(cfg, "DATA_DIR", tmp_path)
+    monkeypatch.setattr("sombra.cli.lst_path", lambda city, period: tmp_path / "x.npz")
     assert main(["run", "--city", "3552205"]) == 1
-    assert "ibge" in capsys.readouterr().err
+    assert "sombra lst" in capsys.readouterr().err
 
 
 def test_validate_ibge_rejects_unicode_digits():
@@ -123,3 +127,13 @@ def test_missing_boundary_removes_stale_copy(tmp_path, monkeypatch):
     monkeypatch.setattr(ew, "boundary_path", lambda ibge: tmp_path / "nao-existe.geojson")
     ew._copy_boundary("3552205", out)
     assert not (out / "boundary.geojson").exists()
+
+
+def test_demo_does_not_overwrite_real_data(tmp_path):
+    from sombra.cli import main as cli_main
+
+    out = tmp_path / "real"
+    out.mkdir()
+    (out / "meta.json").write_text('{"demo": false}', encoding="utf-8")
+    assert cli_main(["run", "--city", "3552205", "--demo", "--out", str(out)]) == 1
+    assert json.loads((out / "meta.json").read_text())["demo"] is False

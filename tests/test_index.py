@@ -14,7 +14,7 @@ def make_table(n=100, seed=0):
     rng = np.random.default_rng(seed)
     return {
         "lst_anomaly": rng.normal(size=n),
-        "pct_65plus": rng.random(n),
+        "pct_60plus": rng.random(n),
         "pct_0_4": rng.random(n),
         "persons_per_household": rng.random(n),
         "income": rng.random(n),
@@ -93,9 +93,9 @@ def test_cooling_points_radius():
 
 
 def test_active_search_orders_by_elderly():
-    pop65 = np.array([10.0, 50.0, 30.0, 99.0])
+    pop60 = np.array([10.0, 50.0, 30.0, 99.0])
     expo = np.array([3.0, 3.0, 3.0, 0.0])
-    assert active_search_sectors(pop65, expo) == [1, 2, 0]
+    assert active_search_sectors(pop60, expo) == [1, 2, 0]
 
 
 def test_correlate():

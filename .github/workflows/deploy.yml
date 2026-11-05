@@ -30,9 +30,14 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: astral-sh/setup-uv@v7
-      - run: uv sync --locked
-      - run: uv run sombra run --city 3552205 --demo
+      - name: Confere que os dados publicados existem e não são sintéticos
+        run: |
+          shopt -s nullglob
+          files=(web/data/*/meta.json)
+          test ${#files[@]} -gt 0 || { echo "sem dados em web/data"; exit 1; }
+          for f in "${files[@]}"; do
+            grep -q '"demo": false' "$f" || { echo "$f não é dado real"; exit 1; }
+          done
       - uses: actions/upload-artifact@v4
         with:
           name: site

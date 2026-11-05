@@ -3,9 +3,7 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 .serena/
-data/
-!data/.gitkeep
+/data/
 dist/
 *.egg-info/
 .env
-web/data/

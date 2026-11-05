@@ -13,7 +13,7 @@ from sombra.vulnerability.indicators import percentile_rank
 # direção: +1 aumenta a prioridade; -1 reduz (valor alto = mais capacidade de adaptação)
 COMPONENTS: dict[str, dict[str, int]] = {
     "exposure": {"lst_anomaly": +1},
-    "sensitivity": {"pct_65plus": +1, "pct_0_4": +1, "persons_per_household": +1},
+    "sensitivity": {"pct_60plus": +1, "pct_0_4": +1, "persons_per_household": +1},
     "low_adaptation": {"income": -1, "pct_black_brown": +1, "ndvi": -1, "dist_ubs_m": +1},
 }
 

@@ -1,6 +1,6 @@
 """Orquestra: LST por setor + indicadores → índice → ações → validação."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import numpy as np
 
@@ -23,6 +23,7 @@ class Result:
     cooling: list[dict]
     active_search: list[int]
     robustness: dict
+    notes: dict = field(default_factory=dict)
 
 
 def run(
@@ -44,22 +45,22 @@ def run(
     res = compute_priority(table)
     cls = priority_class(res.priority)
 
-    pct65 = census["pct_65plus"]
-    pop65 = np.round(population * pct65 / 100.0)
+    pct60 = census["pct_60plus"]
+    pop60 = census.get("pop_60plus", np.round(population * pct60 / 100.0))
 
     centroids = [(g.centroid.x, g.centroid.y) for g in geoms]
     trees = tree_candidates(res.priority, res.exposure, census["ndvi"])
     cooling = rank_cooling_points(
         equipment, centroids, res.priority, population, radius_m=city.cooling_radius_m
     )
-    active = active_search_sectors(pop65, res.exposure)
+    active = active_search_sectors(pop60, res.exposure)
 
     columns = {
         "lst_anomaly_mean": lst_mean,
         "lst_anomaly_p90": lst_p90,
         "lst_pixels": lst_n,
         "population": population,
-        "pop_65plus": pop65,
+        "pop_60plus": pop60,
         **census,
         "exposure": res.exposure,
         "sensitivity": res.sensitivity,

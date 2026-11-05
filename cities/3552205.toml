@@ -3,8 +3,8 @@ ibge = "3552205"
 name = "Sorocaba"
 uf = "SP"
 
-# oeste, sul, leste, norte (graus, WGS84)
-bbox = [-47.62, -23.62, -47.33, -23.36]
+# oeste, sul, leste, norte (graus, WGS84); cobre o contorno municipal com folga de ~1 km
+bbox = [-47.59, -23.61, -47.28, -23.33]
 
 [period]
 season_months = [12, 1, 2, 3]

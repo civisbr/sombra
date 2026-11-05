@@ -17,8 +17,8 @@ function table(id, headers, rows) {
   if (rows.length === 0) t.append(el("caption", { text: "Nenhum item atende aos critérios." }));
 }
 
-const sectorRow = (s) => [s.id, fmt(s.priority, 1), s.priority_label, fmt(s.population), fmt(s.pop_65plus), fmt(s.ndvi, 2)];
-const sectorHead = ["Setor", "Índice", "Classe", "Moradores", "Com 65+", "NDVI"];
+const sectorRow = (s) => [s.id, fmt(s.priority, 1), s.priority_label, fmt(s.population), fmt(s.pop_60plus), fmt(s.ndvi, 2)];
+const sectorHead = ["Setor", "Índice", "Classe", "Moradores", "Com 60+", "NDVI"];
 
 table("t-trees", sectorHead, actions.trees.map(sectorRow));
 table(

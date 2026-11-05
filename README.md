@@ -24,14 +24,21 @@ Cidade-piloto: Sorocaba-SP (`cities/3552205.toml`). O pipeline recebe o código 
 
 | Fase | Entrega | Estado |
 |---|---|---|
-| 0 | Fundação: `uv`, `ruff`, `pytest`, Makefile, config por cidade, esqueleto ponta a ponta | feito |
-| 1 | Calor de superfície: conversão, máscara, anomalia, composição e agregação por setor | núcleo testado; coleta Landsat escrita (`ingest/landsat.py`), **ainda não executada contra o STAC** |
-| 2 | Vulnerabilidade: Censo 2022, NDVI, distância à UBS | padronização pronta; ingestão (`ibge`, `sentinel2`, `osm`) pendente |
-| 3 | Índice, sensibilidade e listas de ação | índice, pesos alternativos e listas prontos sobre dados sintéticos; **pendentes:** PCA na sensibilidade e filtro de calçada/praça (OSM) na lista de arborização |
-| 4 | Site: mapa, prioridades, metodologia, dados abertos | pronto, com dados sintéticos; cidade escolhida por `?cidade=<ibge>` (não `/<ibge>`); sem PMTiles ainda (GeoJSON direto) |
+| 0 | Fundação: `uv`, `ruff`, `pytest`, Makefile, config por cidade | feito |
+| 1 | Calor de superfície (Landsat 8/9, últimos 3 verões) por setor | feito para Sorocaba; falta a comparação com estações INMET e o composto 2013–presente |
+| 2 | Vulnerabilidade: Censo 2022, NDVI, distância à UBS | feito para Sorocaba, sem a distância à UBS (falta fonte oficial) |
+| 3 | Índice, sensibilidade e listas de ação | feito; **pendentes:** PCA na sensibilidade e filtro de calçada/praça (OSM) |
+| 4 | Site: mapa, prioridades, metodologia, dados abertos | no ar, com dados reais de Sorocaba |
 | 5–6 | Escala, validação entre municípios, ECOSTRESS | pendente |
 
-**Importante:** hoje o site e `make city` usam uma **cidade sintética** (`sombra/demo.py`), marcada como "Prévia • dados ilustrativos". Nenhum número exibido descreve um bairro real. No demo, a sobreposição do top 10% sob pesos alternativos fica abaixo da meta de 70%; o critério de aceite só vale para os dados reais do piloto.
+Sorocaba roda com dados reais: 1.091 setores urbanos do Censo 2022 (1.051 comuns e 40 de favelas e comunidades urbanas), calor de 31 datas Landsat e NDVI de 9 datas Sentinel-2 (o verão 2023/24 tem só 1 data utilizável). A sobreposição mínima do top 10% sob pesos alternativos é de 76% (meta: 70%). Desvios em relação ao `PROJECT.md`:
+
+- idosos são **60+** (o Censo agregado por setor só traz as faixas 60–69 e 70+);
+- a renda é a **mediana** dos responsáveis com rendimento (responsáveis sem rendimento ficam fora);
+- a **distância à UBS está fora do índice**: as UBS do OpenStreetMap cobrem só parte das unidades e inflariam a prioridade onde falta mapeamento. Volta com uma fonte oficial (CNES);
+- contagens e percentuais que resultem em menos de 5 pessoas não são publicados.
+
+A validação com temperatura do ar (INMET) e com mortalidade ainda não foi feita. O modo sintético (`sombra/demo.py`) continua só para testes e desenvolvimento.
 
 ## Uso
 
@@ -39,13 +46,12 @@ Cidade-piloto: Sorocaba-SP (`cities/3552205.toml`). O pipeline recebe o código 
 make install            # uv sync --extra ingest
 make test               # pytest
 make lint               # ruff
-make city CITY=3552205  # pipeline ponta a ponta com dados sintéticos -> web/data/
+make city CITY=3552205  # dados reais: baixa IBGE/Landsat/Sentinel-2/OSM (cache em data/) -> web/data/
+make demo CITY=3552205  # dados sintéticos, sem rede, em data/demo/
 python3 -m http.server -d web 8000   # abre o site em http://localhost:8000
 ```
 
-Contagens abaixo de 5 (moradores, idosos) são suprimidas na exportação.
-
-Rodar sem `--demo` falha com mensagem clara enquanto a ingestão do IBGE não existir.
+Os resultados publicados ficam versionados em `web/data/<ibge>/`; o deploy só publica o que está no repositório.
 
 ## Publicação
 
@@ -60,7 +66,6 @@ O GitHub Pages precisa estar em *Settings → Pages → Source: GitHub Actions* 
 2. Criar um token de API dedicado, com a permissão *Cloudflare Pages: Edit* só para a conta e com data de expiração.
 3. Em Settings → Environments, criar `cloudflare-pages` restrito à branch `main` e cadastrar nele, como *environment secrets*, `CLOUDFLARE_API_TOKEN` e `CLOUDFLARE_ACCOUNT_ID`.
 
-Enquanto o pipeline real não existir, o mapa de Sorocaba é a prévia com dados ilustrativos.
 
 ## Metodologia (resumo)
 

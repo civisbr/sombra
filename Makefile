@@ -1,6 +1,6 @@
 CITY ?= 3552205
 
-.PHONY: install test lint city site clean
+.PHONY: install test lint lst city demo clean
 
 install:
 	uv sync --extra ingest
@@ -11,12 +11,16 @@ test:
 lint:
 	uv run ruff check . && uv run ruff format --check .
 
-# Esqueleto ponta a ponta com dados sintéticos (sem rede)
-city:
-	uv run sombra run --city $(CITY) --demo
+# Dados reais (baixa IBGE, Landsat, Sentinel-2 e OSM na primeira vez; guarda cache em data/)
+lst:
+	uv run sombra lst --city $(CITY)
 
-site: city
-	@echo "abra web/index.html servindo a pasta web/: python3 -m http.server -d web 8000"
+city: lst
+	uv run sombra run --city $(CITY)
+
+# Esqueleto ponta a ponta com dados sintéticos (sem rede), fora de web/data
+demo:
+	uv run sombra run --city $(CITY) --demo --out data/demo/$(CITY)
 
 clean:
-	rm -rf web/data data/processed
+	rm -rf data/demo data/processed

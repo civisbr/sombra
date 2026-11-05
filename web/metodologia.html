@@ -38,16 +38,19 @@
       <thead><tr><th>Componente</th><th>Indicadores (peso igual)</th></tr></thead>
       <tbody>
         <tr><td>Exposição</td><td>Anomalia de calor de superfície (↑)</td></tr>
-        <tr><td>Sensibilidade</td><td>% com 65+ anos (↑), % com 0–4 anos (↑), moradores por domicílio (↑)</td></tr>
-        <tr><td>Baixa capacidade de adaptação</td><td>Renda (↓), % pretos e pardos (↑), vegetação, NDVI (↓), distância à UBS (↑)</td></tr>
+        <tr><td>Sensibilidade</td><td>% com 60+ anos (↑), % com 0–4 anos (↑), moradores por domicílio (↑)</td></tr>
+        <tr><td>Baixa capacidade de adaptação</td><td>Renda mediana do responsável (↓), % pretos e pardos (↑), vegetação, NDVI (↓). A distância à UBS (↑) está prevista, mas fora do índice até haver fonte oficial.</td></tr>
       </tbody>
     </table></div>
-    <p class="small">↑ aumenta a prioridade; ↓ reduz. Classes do mapa: quartis do índice dentro da cidade.</p>
+    <p class="small">Idosos: o Censo 2022 agregado por setor traz as faixas 60–69 e 70+, então usamos 60+ (e não 65+). ↑ aumenta a prioridade; ↓ reduz. Classes do mapa: quartis do índice dentro da cidade.</p>
 
     <h2>Robustez do ranking</h2>
     <p>Refazemos o índice com pesos alternativos (um componente dobrado; um indicador removido por vez) e medimos quanto do top 10% se mantém. Meta: sobreposição de pelo menos 70%.</p>
     <p id="robust-summary" class="small"></p>
     <div class="tablewrap"><table id="t-robust"></table></div>
+
+    <h2>Cobertura dos dados desta cidade</h2>
+    <ul id="coverage"></ul>
 
     <h2 id="limitacoes">Limitações</h2>
     <ul>

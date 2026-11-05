@@ -4,9 +4,11 @@ import csv
 import json
 import os
 import shutil
+import subprocess
 from pathlib import Path
 
 import numpy as np
+import shapely
 from shapely.geometry import mapping
 
 from sombra.config import ROOT
@@ -15,14 +17,19 @@ from sombra.pipeline import Result
 
 WEB_DATA = ROOT / "web" / "data"
 MIN_COUNT = 5  # contagens menores são suprimidas para evitar reidentificação
-SUPPRESSED = ("population", "pop_65plus")
+SUPPRESSED = ("population", "pop_60plus")
+SUPPRESSED_PCT = ("pct_60plus", "pct_0_4", "pct_black_brown")
 CLASS_LABELS = ["Menor", "Moderada", "Alta", "Muito alta"]
 
 SOURCES_REAL = [
     {"name": "Landsat 8/9 Collection 2 Level-2 (NASA/USGS)", "use": "calor de superfície"},
-    {"name": "Censo 2022 (IBGE)", "use": "população, idade, cor/raça, domicílios"},
+    {
+        "name": "Censo Demográfico 2022 (IBGE)",
+        "use": "população, idade, cor/raça, renda do responsável",
+    },
+    {"name": "Malha de setores censitários e municipal (IBGE)", "use": "geometria"},
     {"name": "Sentinel-2 L2A (ESA/Copernicus)", "use": "vegetação (NDVI)"},
-    {"name": "CNES (DATASUS), INEP e OpenStreetMap", "use": "equipamentos públicos"},
+    {"name": "OpenStreetMap (colaboradores)", "use": "UBS, escolas e bibliotecas"},
 ]
 SOURCES_DEMO = [
     {
@@ -30,6 +37,17 @@ SOURCES_DEMO = [
         "use": "todos os números desta prévia são ilustrativos e não descrevem nenhum bairro real",
     }
 ]
+
+
+def code_version() -> str:
+    """Commit do código que gerou os dados (+ ``-dirty`` se havia alterações não commitadas)."""
+    try:
+        run = lambda *a: subprocess.run(  # noqa: E731
+            ["git", *a], cwd=ROOT, capture_output=True, text=True, check=True
+        ).stdout.strip()
+        return run("rev-parse", "HEAD") + ("-dirty" if run("status", "--porcelain") else "")
+    except (OSError, subprocess.CalledProcessError):
+        return os.environ.get("GITHUB_SHA", "desconhecida")
 
 
 def _clean(v):
@@ -48,6 +66,12 @@ def _rows(result: Result) -> list[dict]:
             row[name] = _clean(col[i])
             if name in SUPPRESSED and row[name] is not None and row[name] < MIN_COUNT:
                 row[name] = None
+        pop = row["population"] if row["population"] is not None else 0
+        for pct_col in SUPPRESSED_PCT:
+            if row[pct_col] is not None and pop * row[pct_col] / 100.0 < MIN_COUNT:
+                row[pct_col] = None  # o % × população permitiria recalcular a contagem pequena
+        if row["pop_60plus"] is None:
+            row["pct_60plus"] = None
         cls = row["priority_class"]
         row["priority_label"] = CLASS_LABELS[cls] if cls >= 0 else "Sem dado"
         rows.append(row)
@@ -56,13 +80,26 @@ def _rows(result: Result) -> list[dict]:
 
 def export(result: Result, demo: bool, reference_date: str, out_dir: Path | None = None) -> Path:
     city = result.city
-    out = out_dir or WEB_DATA / city.ibge
+    out = Path(out_dir) if out_dir else WEB_DATA / city.ibge
+    existing = out / "meta.json"
+    if (
+        demo
+        and existing.exists()
+        and not json.loads(existing.read_text(encoding="utf-8")).get("demo")
+    ):
+        raise RuntimeError(f"{out} contém dados reais; a demo não os sobrescreve (use --out)")
     out.mkdir(parents=True, exist_ok=True)
     rows = _rows(result)
 
     features = []
     for geom, row in zip(result.geoms, rows, strict=True):
-        features.append({"type": "Feature", "geometry": mapping(geom), "properties": row})
+        features.append(
+            {
+                "type": "Feature",
+                "geometry": mapping(shapely.set_precision(geom, 1e-5)),
+                "properties": row,
+            }
+        )
     (out / "sectors.geojson").write_text(
         json.dumps({"type": "FeatureCollection", "features": features}, ensure_ascii=False),
         encoding="utf-8",
@@ -77,7 +114,7 @@ def export(result: Result, demo: bool, reference_date: str, out_dir: Path | None
         r = rows[i]
         return {
             k: r[k]
-            for k in ("id", "priority", "priority_label", "population", "pop_65plus", "ndvi")
+            for k in ("id", "priority", "priority_label", "population", "pop_60plus", "ndvi")
         }
 
     actions = {
@@ -113,8 +150,9 @@ def export(result: Result, demo: bool, reference_date: str, out_dir: Path | None
             "mean_overlap": _clean(result.robustness["mean_overlap"]),
             "overlaps": {k: _clean(v) for k, v in result.robustness["overlaps"].items()},
         },
-        "code_version": os.environ.get("GITHUB_SHA", "local"),
+        "code_version": code_version(),
         "min_count_suppressed": MIN_COUNT,
+        "notes": result.notes,
         "weights": "pesos iguais entre indicadores e entre componentes",
     }
     (out / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=1), encoding="utf-8")

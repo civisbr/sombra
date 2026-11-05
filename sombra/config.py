@@ -48,6 +48,8 @@ def load_city(code: str, cities_dir: Path = CITIES_DIR) -> City:
     period = raw["period"]
     if validate_ibge(str(raw["ibge"])) != code:
         raise ValueError(f"ibge em {path.name} difere do nome do arquivo")
+    if not re.fullmatch(r"[A-Z]{2}", str(raw["uf"])):
+        raise ValueError(f"uf inválida em {path.name}")
     return City(
         ibge=code,
         name=raw["name"],
