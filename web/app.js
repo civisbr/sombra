@@ -11,6 +11,8 @@ const RAMPS = {
   vuln: ["#f6e3a1", "#f2c066", "#ea8d45", "#c8503c"],
   veg: ["#e6f0c8", "#b5d57a", "#6fb04a", "#2f7d3a"],
 };
+// Mapa-base vetorial gratuito (sem chave). O navegador consulta tiles.openfreemap.org.
+const BASEMAP_STYLE = "https://tiles.openfreemap.org/styles/positron";
 const EQUIP_COLORS = { ubs: "#c8503c", escola: "#0f3d22", biblioteca: "#5b6fb5" };
 const EQUIP_NAMES = { ubs: "UBS", escola: "Escola", biblioteca: "Biblioteca" };
 
@@ -22,9 +24,9 @@ const [meta, gj, actions] = await Promise.all([
   getJSON(`${base}/actions.json`),
 ]);
 setupHeader(cities, code, meta);
+document.getElementById("demo-banner").hidden = !meta.demo;
 document.getElementById("ref-line").textContent =
   `Referência: ${meta.reference_date}. Fonte: ${meta.sources.map((s) => s.name).join("; ")}.`;
-if (meta.demo) document.getElementById("map-chip").textContent = "Mapa ilustrativo · setores sintéticos";
 
 const values = (p) => gj.features.map((f) => f.properties[p]).filter((v) => v != null);
 const quantile = (arr, q) => {
@@ -77,12 +79,38 @@ function renderLegend(layer) {
   }
 }
 
+const LOCAL_STYLE = { version: 8, sources: {}, layers: [{ id: "bg", type: "background", paint: { "background-color": "#f1ecdd" } }] };
+
+async function loadBasemapStyle() {
+  try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 5000);
+    const r = await fetch(BASEMAP_STYLE, { signal: ctrl.signal });
+    clearTimeout(timer);
+    if (!r.ok) throw new Error(String(r.status));
+    return { style: await r.json(), ok: true };
+  } catch {
+    return { style: LOCAL_STYLE, ok: false };
+  }
+}
+const basemap = await loadBasemapStyle();
+const chip = document.getElementById("map-chip");
+if (meta.demo) chip.textContent = "Setores sintéticos sobre mapa real · não são bairros reais";
+if (!basemap.ok) chip.textContent = `${chip.textContent ? `${chip.textContent} · ` : ""}mapa-base indisponível`;
+if (!chip.textContent) chip.hidden = true;
+
 const map = new maplibregl.Map({
   container: "map",
-  style: { version: 8, sources: {}, layers: [{ id: "bg", type: "background", paint: { "background-color": "#f1ecdd" } }] },
+  style: basemap.style,
   bounds: meta.bounds,
   fitBoundsOptions: { padding: 30 },
-  attributionControl: { compact: true },
+  minZoom: 9,
+  maxZoom: 17,
+  maxBounds: [
+    [meta.bounds[0] - 0.25, meta.bounds[1] - 0.25],
+    [meta.bounds[2] + 0.25, meta.bounds[3] + 0.25],
+  ],
+  attributionControl: { compact: true, customAttribution: "© colaboradores do OpenStreetMap" },
 });
 map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
 
@@ -99,21 +127,36 @@ let selectedId = null;
 
 map.on("load", () => {
   map.addSource("sectors", { type: "geojson", data: gj, promoteId: "id" });
-  map.addLayer({
-    id: "fill",
-    type: "fill",
-    source: "sectors",
-    paint: { "fill-color": fillExpression("priority"), "fill-opacity": 0.88 },
-  });
-  map.addLayer({
-    id: "line",
-    type: "line",
-    source: "sectors",
-    paint: {
-      "line-color": ["case", ["boolean", ["feature-state", "selected"], false], "#0f3d22", "#fffdf8"],
-      "line-width": ["case", ["boolean", ["feature-state", "selected"], false], 3, 0.7],
+  // Setores ficam abaixo dos rótulos do mapa-base, para nomes de ruas e bairros continuarem legíveis.
+  const firstLabel = map.getStyle().layers.find((l) => l.type === "symbol")?.id;
+  // Na prévia, setores são sintéticos: sem nomes de bairros reais por cima, para não parecer dado de um bairro.
+  if (meta.demo) {
+    for (const id of ["label_other", "label_village"]) {
+      if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", "none");
+    }
+  }
+  map.addLayer(
+    {
+      id: "fill",
+      type: "fill",
+      source: "sectors",
+      paint: { "fill-color": fillExpression("priority"), "fill-opacity": 0.68 },
     },
-  });
+    firstLabel,
+  );
+  map.addLayer(
+    {
+      id: "line",
+      type: "line",
+      source: "sectors",
+      paint: {
+        "line-color": ["case", ["boolean", ["feature-state", "selected"], false], "#0f3d22", "#ffffff"],
+        "line-width": ["case", ["boolean", ["feature-state", "selected"], false], 3, 0.8],
+        "line-opacity": 0.9,
+      },
+    },
+    firstLabel,
+  );
   map.addSource("equip", { type: "geojson", data: equipFC });
   map.addLayer({
     id: "equip",
@@ -146,12 +189,13 @@ map.on("load", () => {
 
 for (const r of document.querySelectorAll('input[name="layer"]')) {
   r.addEventListener("change", () => {
+    if (!map.getLayer("fill")) return;
     map.setPaintProperty("fill", "fill-color", fillExpression(r.value));
     renderLegend(r.value);
   });
 }
 document.getElementById("equip").addEventListener("change", (e) => {
-  map.setLayoutProperty("equip", "visibility", e.target.checked ? "visible" : "none");
+  if (map.getLayer("equip")) map.setLayoutProperty("equip", "visibility", e.target.checked ? "visible" : "none");
 });
 
 function bar(label, value, color) {
@@ -169,7 +213,7 @@ function select(id) {
   selectedId = id;
   map.setFeatureState({ source: "sectors", id }, { selected: true });
 
-  document.getElementById("s-title").textContent = `Setor ${id}`;
+  document.getElementById("s-title").textContent = meta.demo ? `Setor sintético ${id}` : `Setor ${id}`;
   const body = document.getElementById("s-body");
   body.replaceChildren();
   const cls = p.priority_class;

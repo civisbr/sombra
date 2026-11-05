@@ -54,7 +54,7 @@ h1, h2, h3 { font-family: var(--serif); line-height: 1.15; margin: 0 0 .4em; }
 .search input { width: 100%; font: inherit; border: 1px solid var(--line); border-radius: 999px; padding: 10px 16px; background: var(--surface); }
 .legend { position: absolute; left: 14px; bottom: 14px; z-index: 2; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; font-size: .9rem; }
 .legend i { display: inline-block; width: 16px; height: 16px; border-radius: 4px; margin-right: 5px; vertical-align: -3px; }
-.chip { position: absolute; right: 14px; bottom: 14px; z-index: 2; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; font-size: .85rem; }
+.chip { position: absolute; left: 14px; top: 62px; max-width: calc(100% - 90px); z-index: 2; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; font-size: .85rem; }
 
 .sector h2 { font-size: 1.7rem; }
 .sector .label { font-size: .8rem; letter-spacing: .14em; font-weight: 700; text-transform: uppercase; margin: 0 0 4px; }
@@ -86,7 +86,7 @@ table { border-collapse: collapse; width: 100%; background: var(--surface); }
 th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
 th { font-size: .85rem; letter-spacing: .05em; text-transform: uppercase; }
 .tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
-.demo-banner { background: var(--lime-soft); padding: 10px 16px; border-radius: 10px; font-weight: 600; }
+.demo-banner { margin: 10px 0; background: var(--lime-soft); padding: 10px 16px; border-radius: 10px; font-weight: 600; }
 
 @media (max-width: 1100px) {
   .explorer { grid-template-columns: 1fr; }

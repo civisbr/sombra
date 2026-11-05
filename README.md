@@ -79,7 +79,7 @@ sombra/
   sombra/
     ingest/ heat/ vulnerability/ index/ actions/ validate/ publish/
     demo.py pipeline.py cli.py
-  web/           # site estático (MapLibre GL, sem rastreio)
+  web/           # site estático (MapLibre GL + mapa-base OpenFreeMap/OSM, sem rastreio próprio)
   tests/
 ```
 
