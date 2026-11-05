@@ -1,0 +1,182 @@
+{
+ "ibge": "3552205",
+ "name": "Sorocaba",
+ "uf": "SP",
+ "demo": false,
+ "reference_date": "Censo 2022; Landsat 2023-12-01 a 2026-03-29; Sentinel-2 2023-12-27 a 2026-03-29; OSM 2026-11-05",
+ "n_sectors": 1091,
+ "center": [
+  -47.470220115160444,
+  -23.480142567561096
+ ],
+ "bounds": [
+  -47.57049399999994,
+  -23.586471899999935,
+  -47.309630099999936,
+  -23.38010019999996
+ ],
+ "sources": [
+  {
+   "name": "Landsat 8/9 Collection 2 Level-2 (NASA/USGS)",
+   "use": "calor de superfície"
+  },
+  {
+   "name": "Censo Demográfico 2022 (IBGE)",
+   "use": "população, idade, cor/raça, renda do responsável"
+  },
+  {
+   "name": "Malha de setores censitários e municipal (IBGE)",
+   "use": "geometria"
+  },
+  {
+   "name": "Sentinel-2 L2A (ESA/Copernicus)",
+   "use": "vegetação (NDVI)"
+  },
+  {
+   "name": "OpenStreetMap (colaboradores)",
+   "use": "UBS, escolas e bibliotecas"
+  }
+ ],
+ "robustness": {
+  "fraction": 0.1,
+  "min_overlap": 0.761,
+  "mean_overlap": 0.861,
+  "overlaps": {
+   "componente exposure ×2": 0.881,
+   "componente sensitivity ×2": 0.89,
+   "componente low_adaptation ×2": 0.881,
+   "sem pct_60plus": 0.789,
+   "sem pct_0_4": 0.798,
+   "sem persons_per_household": 0.761,
+   "sem income": 0.872,
+   "sem pct_black_brown": 0.899,
+   "sem ndvi": 0.844,
+   "sem dist_ubs_m": 1.0
+  }
+ },
+ "code_version": "3dcce3e93e5c530708a7099e9a1593783c10160b",
+ "min_count_suppressed": 5,
+ "notes": {
+  "ndvi_scenes": [
+   "2023-12-27",
+   "2025-02-17",
+   "2025-03-09",
+   "2025-03-29",
+   "2025-12-28",
+   "2026-03-14",
+   "2026-03-24",
+   "2026-03-28",
+   "2026-03-29"
+  ],
+  "equipment": {
+   "escola": 251,
+   "ubs": 21,
+   "biblioteca": 8
+  },
+  "osm_source": {
+   "endpoint": "https://overpass-api.de/api/interpreter",
+   "base_timestamp": "2026-11-05T02:56:34Z"
+  },
+  "ubs_source": "OpenStreetMap (nomes com UBS/USF/Unidade Básica); cobertura incompleta",
+  "unavailable_indicators": [
+   "dist_ubs_m"
+  ],
+  "excluded_sectors": {
+   "rural": 40,
+   "tipo 4": 13,
+   "tipo 6": 2,
+   "tipo 7": 2
+  },
+  "included_sector_types": {
+   "0": 1051,
+   "1": 40
+  },
+  "lst_scenes": [
+   "2023-12-01",
+   "2023-12-02",
+   "2023-12-17",
+   "2023-12-18",
+   "2024-01-10",
+   "2024-01-18",
+   "2024-02-11",
+   "2024-02-19",
+   "2024-02-27",
+   "2024-03-14",
+   "2024-03-15",
+   "2024-03-30",
+   "2024-03-31",
+   "2024-12-19",
+   "2025-01-21",
+   "2025-02-21",
+   "2025-03-01",
+   "2025-03-02",
+   "2025-03-09",
+   "2025-03-10",
+   "2025-03-25",
+   "2025-12-06",
+   "2025-12-07",
+   "2025-12-22",
+   "2026-01-08",
+   "2026-02-16",
+   "2026-02-17",
+   "2026-03-20",
+   "2026-03-21",
+   "2026-03-28",
+   "2026-03-29"
+  ],
+  "lst_period": "recent",
+  "census": "Censo Demográfico 2022 (IBGE)",
+  "inputs": [
+   {
+    "file": "SP_setores_CD2022.gpkg",
+    "url": "https://ftp.ibge.gov.br/Censos/Censo_Demografico_2022/Agregados_por_Setores_Censitarios/malha_com_atributos/setores/gpkg/UF/SP/SP_setores_CD2022.gpkg",
+    "bytes": 182128640,
+    "sha256": "07affc966f82292d6f9a359adccc49e69ed55d2075936ef6d1e9c346b29a04bc",
+    "date": "2026-11-05"
+   },
+   {
+    "file": "Agregados_por_setores_demografia_BR.zip",
+    "url": "https://ftp.ibge.gov.br/Censos/Censo_Demografico_2022/Agregados_por_Setores_Censitarios/Agregados_por_Setor_csv/Agregados_por_setores_demografia_BR.zip",
+    "bytes": 22554090,
+    "sha256": "f8486233ce2f6559de76299390577c58d05f35cad07c46098e6e565949c8b269",
+    "date": "2026-11-05"
+   },
+   {
+    "file": "Agregados_por_setores_cor_ou_raca_BR.zip",
+    "url": "https://ftp.ibge.gov.br/Censos/Censo_Demografico_2022/Agregados_por_Setores_Censitarios/Agregados_por_Setor_csv/Agregados_por_setores_cor_ou_raca_BR.zip",
+    "bytes": 43838759,
+    "sha256": "cd4d628878f619b69c9e0d06e613011a05b67643edbb3cfc25735ae6b6941b1a",
+    "date": "2026-11-05"
+   },
+   {
+    "file": "Agregados_por_setores_renda_responsavel_BR_20260508_csv.zip",
+    "url": "https://ftp.ibge.gov.br/Censos/Censo_Demografico_2022/Agregados_por_Setores_Censitarios_Rendimento_do_Responsavel/Agregados_por_setores_renda_responsavel_BR_20260508_csv.zip",
+    "bytes": 9370011,
+    "sha256": "141c83e7635674e7e2c941e55f98811e538fcbf2e1e1125b0aa7892c260f4a23",
+    "date": "2026-11-05"
+   },
+   {
+    "file": "osm_equipment.json",
+    "url": "overpass (OpenStreetMap)",
+    "bytes": 39268,
+    "sha256": "bf8d231d246f74c51b8d20b6a817150df36f845a4cc3095f7b3f1554007e6316",
+    "date": "2026-11-05"
+   },
+   {
+    "file": "lst_recent.npz",
+    "url": null,
+    "bytes": 2411546,
+    "sha256": "15a7af6477a1b14e67e89085848a1005fbca55d18b5e16931ee009f8016215c0",
+    "date": "2026-11-05"
+   },
+   {
+    "file": "ndvi_recent.npz",
+    "url": null,
+    "bytes": 3023433,
+    "sha256": "fffe2cb329285ef6b521b028eace23dd0a3d278892b227d1f86f64febd59cefb",
+    "date": "2026-11-05"
+   }
+  ]
+ },
+ "weights": "pesos iguais entre indicadores e entre componentes"
+}
