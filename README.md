@@ -47,6 +47,17 @@ Contagens abaixo de 5 (moradores, idosos) são suprimidas na exportação.
 
 Rodar sem `--demo` falha com mensagem clara enquanto a ingestão do IBGE não existir.
 
+## Publicação (Cloudflare Pages)
+
+O workflow `deploy.yml` roda testes, gera os dados de Sorocaba e publica `web/` no projeto Cloudflare Pages `sombra`, a cada push na `main`. Configuração única:
+
+1. Criar o projeto: `npx wrangler pages project create sombra --production-branch=main`.
+2. Criar um token de API dedicado, com a permissão *Cloudflare Pages: Edit* só para a conta e com data de expiração.
+3. Em Settings → Environments, criar `cloudflare-pages` restrito à branch `main` e cadastrar nele, como *environment secrets*, `CLOUDFLARE_API_TOKEN` e `CLOUDFLARE_ACCOUNT_ID`.
+4. Desativar o GitHub Pages em Settings → Pages, se estiver ativo.
+
+Enquanto o pipeline real não existir, o site publicado é a prévia com dados ilustrativos.
+
 ## Metodologia (resumo)
 
 - **Calor:** `ST_B10` do Landsat C2 L2 (`K = DN × 0.00341802 + 149.0`), máscara por `QA_PIXEL`, anomalia de cada pixel contra a mediana urbana da cena, mediana das anomalias, média e P90 por setor.

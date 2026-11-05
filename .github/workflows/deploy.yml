@@ -6,7 +6,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: pages
+  group: cloudflare-pages
   cancel-in-progress: false
 jobs:
   test:
@@ -19,6 +19,7 @@ jobs:
       - uses: astral-sh/setup-uv@v7
       - run: uv sync --locked
       - run: uv run ruff check .
+      - run: uv run ruff format --check .
       - run: uv run pytest -q
   build:
     needs: test
@@ -31,19 +32,28 @@ jobs:
       - uses: astral-sh/setup-uv@v7
       - run: uv sync --locked
       - run: uv run sombra run --city 3552205 --demo
-      - uses: actions/upload-pages-artifact@v5
+      - uses: actions/upload-artifact@v4
         with:
+          name: site
           path: web
+          if-no-files-found: error
+          retention-days: 1
   deploy:
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    permissions:
-      pages: write
-      id-token: write
     environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      name: cloudflare-pages
+      url: ${{ steps.cf.outputs.deployment-url }}
     steps:
-      - id: deployment
-        uses: actions/deploy-pages@v5
+      - uses: actions/download-artifact@v4
+        with:
+          name: site
+          path: web
+      - id: cf
+        uses: cloudflare/wrangler-action@v3
+        with:
+          wranglerVersion: "4.157.0"
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy web --project-name=sombra --branch=main
