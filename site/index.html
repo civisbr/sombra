@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'none'; form-action 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; object-src 'none'; base-uri 'self'" />
+  <meta name="referrer" content="no-referrer" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sombra — calor urbano e vulnerabilidade</title>
+  <meta name="description" content="Ferramenta aberta que cruza calor de superfície e vulnerabilidade social para priorizar arborização e proteção em qualquer município brasileiro." />
+  <link rel="icon" href="assets/icon.png" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .lead { font-size: 1.25rem; color: var(--ink-soft); max-width: 46rem; }
+    .cta { display: flex; gap: 12px; flex-wrap: wrap; margin: 18px 0 8px; }
+    .cta .btn, .cta .btn-outline { display: inline-block; padding: 14px 22px; }
+    .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 14px 0; }
+    .grid3 h3 { font-size: 1.2rem; }
+    .grid3 p { margin: 0; color: var(--ink-soft); }
+    main.page { max-width: 1040px; }
+    @media (max-width: 800px) { .grid3 { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="Sombra, início"><img src="assets/logo.png" alt="sombra" /></a>
+      <nav aria-label="Principal">
+        <a href="#como-funciona">Como funciona</a>
+        <a href="#cidades">Cidades</a>
+        <a href="#limitacoes">Limitações</a>
+        <a href="https://github.com/civisbr/sombra">Código</a>
+      </nav>
+    </header>
+  </div>
+  <main class="page">
+    <p class="eyebrow">Clima, cidade e cuidado</p>
+    <h1>Mais sombra onde ela faz mais falta.</h1>
+    <p class="lead">Ondas de calor matam no Brasil, e matam de forma desigual. O Sombra cruza calor de superfície (Landsat 8/9) com vulnerabilidade do Censo 2022 para mostrar, por setor censitário, onde arborizar, onde abrir pontos de resfriamento e onde a atenção primária deve procurar idosos primeiro.</p>
+    <div class="cta">
+      <a class="btn" href="https://sombra.pages.dev/">Ver o Sombra em Sorocaba</a>
+      <a class="btn-outline" href="https://github.com/civisbr/sombra">Código no GitHub</a>
+    </div>
+
+    <h2 id="como-funciona">Como funciona</h2>
+    <div class="grid3">
+      <div class="card"><h3>1. Calor</h3><p>Temperatura de superfície de verão por setor censitário, como anomalia em relação à mediana urbana de cada cena.</p></div>
+      <div class="card"><h3>2. Vulnerabilidade</h3><p>Idade, renda, cor/raça, moradores por domicílio, vegetação e distância à UBS, em percentil dentro da cidade.</p></div>
+      <div class="card"><h3>3. Ação</h3><p>Índice de prioridade com pesos abertos e testados, e três listas: arborizar, pontos de resfriamento e busca ativa.</p></div>
+    </div>
+    <p>Aplicável a qualquer município: o pipeline recebe o código IBGE de 7 dígitos e uma configuração em <code>cities/&lt;codigo&gt;.toml</code>. Todo número publicado traz fonte e data, e só há agregados por setor, nunca dado individual.</p>
+
+    <h2 id="cidades">Cidades</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Município</th><th>Código IBGE</th><th>Estado</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>Sorocaba/SP (piloto)</td><td>3552205</td><td>Prévia com dados ilustrativos; pipeline real em construção</td><td><a href="https://sombra.pages.dev/">Abrir mapa</a></td></tr>
+      </tbody>
+    </table></div>
+
+    <h2 id="limitacoes">O que o Sombra não é</h2>
+    <ul>
+      <li>Calor de superfície diurno não é temperatura do ar nem o calor dentro de casa.</li>
+      <li>A resolução térmica nativa é de 100 m: não enxerga a escala de rua.</li>
+      <li>Não é sistema de alerta meteorológico; isso é do INMET e da Defesa Civil.</li>
+      <li>Sem óbitos por bairro, a validação dentro da cidade depende de parceria com a saúde municipal.</li>
+    </ul>
+    <p>A metodologia completa está na <a href="https://sombra.pages.dev/metodologia.html">página de metodologia</a> e no <a href="https://github.com/civisbr/sombra/blob/main/PROJECT.md">PROJECT.md</a>.</p>
+
+    <h2>Base científica</h2>
+    <ul>
+      <li>Monteiro dos Santos et al. (2024). Twenty-first-century demographic and social inequalities of heat-related deaths in Brazilian urban areas. PMC10807764.</li>
+      <li>Debone et al. (2025). The Cost of Heat: Health and Economic Burdens in Three Brazilian Cities. <em>Atmosphere</em> 16(7).</li>
+      <li>Geirinhas et al. (2020). Heat-related mortality in Rio de Janeiro. <em>Int. J. Biometeorology</em>.</li>
+    </ul>
+
+    <footer>
+      <span>Código MIT. Dados derivados CC BY 4.0. Uma iniciativa <a href="https://github.com/civisbr">CivisBR</a>.</span>
+    </footer>
+  </main>
+</body>
+</html>

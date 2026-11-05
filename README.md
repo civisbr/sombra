@@ -47,16 +47,20 @@ Contagens abaixo de 5 (moradores, idosos) são suprimidas na exportação.
 
 Rodar sem `--demo` falha com mensagem clara enquanto a ingestão do IBGE não existir.
 
-## Publicação (Cloudflare Pages)
+## Publicação
 
-O workflow `deploy.yml` roda testes, gera os dados de Sorocaba e publica `web/` no projeto Cloudflare Pages `sombra`, a cada push na `main`. Configuração única:
+| Site | Onde | Workflow | Conteúdo |
+|---|---|---|---|
+| Projeto Sombra | GitHub Pages: https://civisbr.github.io/sombra/ | `pages.yml` (pasta `site/`) | o que é, como funciona, cidades, limitações |
+| Sombra em Sorocaba | Cloudflare Pages: https://sombra.pages.dev/ | `deploy.yml` (pasta `web/`) | mapa, prioridades, metodologia e dados de Sorocaba |
 
-1. Criar o projeto: `npx wrangler pages project create sombra --production-branch=main`.
+O GitHub Pages precisa estar em *Settings → Pages → Source: GitHub Actions* (`gh api -X PUT repos/civisbr/sombra/pages -f build_type=workflow`). O deploy no Cloudflare roda testes, gera os dados de Sorocaba e publica `web/`. Configuração única:
+
+1. Criar o projeto: `npx wrangler pages project create sombra --production-branch=main`. Se o nome `sombra` já estiver em uso na Cloudflare, trocar `--project-name` no `deploy.yml` e os links `sombra.pages.dev` em `site/index.html`.
 2. Criar um token de API dedicado, com a permissão *Cloudflare Pages: Edit* só para a conta e com data de expiração.
 3. Em Settings → Environments, criar `cloudflare-pages` restrito à branch `main` e cadastrar nele, como *environment secrets*, `CLOUDFLARE_API_TOKEN` e `CLOUDFLARE_ACCOUNT_ID`.
-4. Desativar o GitHub Pages em Settings → Pages, se estiver ativo.
 
-Enquanto o pipeline real não existir, o site publicado é a prévia com dados ilustrativos.
+Enquanto o pipeline real não existir, o mapa de Sorocaba é a prévia com dados ilustrativos.
 
 ## Metodologia (resumo)
 
