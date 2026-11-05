@@ -1,0 +1,21 @@
+# Sorocaba-SP (piloto). Código IBGE de 7 dígitos.
+ibge = "3552205"
+name = "Sorocaba"
+uf = "SP"
+
+# oeste, sul, leste, norte (graus, WGS84)
+bbox = [-47.62, -23.62, -47.33, -23.36]
+
+[period]
+season_months = [12, 1, 2, 3]
+first_year = 2013
+last_year = 2026
+recent_summers = 3
+max_cloud_cover = 30
+
+[inmet]
+# Estação automática de referência (conferir o código no portal do INMET antes de usar)
+stations = ["A713"]
+
+[cooling]
+radius_m = 500
