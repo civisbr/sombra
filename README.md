@@ -52,11 +52,11 @@ Rodar sem `--demo` falha com mensagem clara enquanto a ingestão do IBGE não ex
 | Site | Onde | Workflow | Conteúdo |
 |---|---|---|---|
 | Projeto Sombra | GitHub Pages: https://civisbr.github.io/sombra/ | `pages.yml` (pasta `site/`) | o que é, como funciona, cidades, limitações |
-| Sombra em Sorocaba | Cloudflare Pages: https://sombra.pages.dev/ | `deploy.yml` (pasta `web/`) | mapa, prioridades, metodologia e dados de Sorocaba |
+| Sombra em Sorocaba | Cloudflare Pages: https://sombra-dwm.pages.dev/ | `deploy.yml` (pasta `web/`) | mapa, prioridades, metodologia e dados de Sorocaba |
 
 O GitHub Pages precisa estar em *Settings → Pages → Source: GitHub Actions* (`gh api -X PUT repos/civisbr/sombra/pages -f build_type=workflow`). O deploy no Cloudflare roda testes, gera os dados de Sorocaba e publica `web/`. Configuração única:
 
-1. Criar o projeto: `npx wrangler pages project create sombra --production-branch=main`. Se o nome `sombra` já estiver em uso na Cloudflare, trocar `--project-name` no `deploy.yml` e os links `sombra.pages.dev` em `site/index.html`.
+1. O workflow cria o projeto `sombra` se ele não existir. A Cloudflare escolhe o subdomínio (hoje `sombra-dwm.pages.dev`, porque `sombra` estava ocupado); se mudar, atualizar os links em `site/index.html` e neste README.
 2. Criar um token de API dedicado, com a permissão *Cloudflare Pages: Edit* só para a conta e com data de expiração.
 3. Em Settings → Environments, criar `cloudflare-pages` restrito à branch `main` e cadastrar nele, como *environment secrets*, `CLOUDFLARE_API_TOKEN` e `CLOUDFLARE_ACCOUNT_ID`.
 
