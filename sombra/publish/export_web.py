@@ -45,7 +45,9 @@ def code_version() -> str:
         run = lambda *a: subprocess.run(  # noqa: E731
             ["git", *a], cwd=ROOT, capture_output=True, text=True, check=True
         ).stdout.strip()
-        return run("rev-parse", "HEAD") + ("-dirty" if run("status", "--porcelain") else "")
+        return run("rev-parse", "HEAD") + (
+            "-dirty" if run("status", "--porcelain", "--", ".", ":!web/data") else ""
+        )
     except (OSError, subprocess.CalledProcessError):
         return os.environ.get("GITHUB_SHA", "desconhecida")
 
