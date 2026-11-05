@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'" />
+  <meta name="referrer" content="no-referrer" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Metodologia — Sombra</title>
+  <meta name="description" content="Como o Sombra calcula calor de superfície, vulnerabilidade e prioridade, e o que a ferramenta não mede." />
+  <link rel="icon" href="assets/icon.png" />
+  <link rel="stylesheet" href="style.css" />
+  </head>
+<body>
+  <div class="wrap">
+    <header class="topbar">
+      <a class="brand" href="index.html" aria-label="Sombra, início"><img src="assets/logo.png" alt="sombra" /></a>
+      <nav aria-label="Principal">
+        <a href="index.html">Explorar o mapa</a>
+        <a href="prioridades.html">Prioridades</a>
+        <a href="metodologia.html" aria-current="page">Metodologia</a>
+        <a href="dados.html">Dados abertos</a>
+      </nav>
+      <label for="city-select" style="position:absolute;left:-9999px">Município</label>
+      <select id="city-select"></select>
+      <a class="btn-outline" id="download-link" href="dados.html">⬇ Baixar dados</a>
+    </header>
+      </div>
+  <main class="page">
+    <h1>Metodologia e limitações</h1>
+    <div class="demo-banner" id="demo-banner" hidden>Prévia com dados ilustrativos: a cidade exibida é sintética.</div>
+
+    <h2>Calor de superfície</h2>
+    <p>Usamos a banda térmica (<code>ST_B10</code>) do Landsat 8/9, Collection 2 Level-2, em cenas de verão (dezembro a março) desde 2013, com máscara de nuvem e sombra (<code>QA_PIXEL</code>). Para cada cena, calculamos a anomalia de cada pixel em relação à mediana urbana da própria cena, o que remove a diferença entre dias mais quentes e mais frios. Compomos a mediana das anomalias e agregamos por setor censitário (média e percentil 90).</p>
+
+    <h2 id="pesos">Índice de prioridade e pesos</h2>
+    <p>O índice combina três componentes, cada um em percentil dentro da cidade, e o resultado é a média geométrica deles, de 0 a 100. Os pesos estão abertos:</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Componente</th><th>Indicadores (peso igual)</th></tr></thead>
+      <tbody>
+        <tr><td>Exposição</td><td>Anomalia de calor de superfície (↑)</td></tr>
+        <tr><td>Sensibilidade</td><td>% com 65+ anos (↑), % com 0–4 anos (↑), moradores por domicílio (↑)</td></tr>
+        <tr><td>Baixa capacidade de adaptação</td><td>Renda (↓), % pretos e pardos (↑), vegetação, NDVI (↓), distância à UBS (↑)</td></tr>
+      </tbody>
+    </table></div>
+    <p class="small">↑ aumenta a prioridade; ↓ reduz. Classes do mapa: quartis do índice dentro da cidade.</p>
+
+    <h2>Robustez do ranking</h2>
+    <p>Refazemos o índice com pesos alternativos (um componente dobrado; um indicador removido por vez) e medimos quanto do top 10% se mantém. Meta: sobreposição de pelo menos 70%.</p>
+    <p id="robust-summary" class="small"></p>
+    <div class="tablewrap"><table id="t-robust"></table></div>
+
+    <h2 id="limitacoes">Limitações</h2>
+    <ul>
+      <li>Calor de superfície diurno (~10h) não é temperatura do ar, nem o calor dentro de casa à noite.</li>
+      <li>A resolução térmica nativa é de 100 m: o mapa não enxerga a escala de rua ou de quarteirão pequeno.</li>
+      <li>O índice depende de escolhas de peso; elas são publicadas e testadas na análise de robustez.</li>
+      <li>Sem dados públicos de óbito por bairro, a validação dentro da cidade depende de parceria com a secretaria de saúde. Com dados abertos, só há validação entre municípios.</li>
+      <li>Há exceções reais: bairros de baixa renda com muita vegetação podem ser mais frescos. O índice mostra isso em vez de esconder.</li>
+      <li>Não é sistema de alerta meteorológico; isso é papel do INMET e da Defesa Civil.</li>
+    </ul>
+
+    <h2>Ética</h2>
+    <p>Publicamos só agregados por setor. O foco é onde investir, não &ldquo;onde é ruim&rdquo;.</p>
+
+    <h2>Base científica</h2>
+    <ul>
+      <li>Monteiro dos Santos et al. (2024). Twenty-first-century demographic and social inequalities of heat-related deaths in Brazilian urban areas. PMC10807764.</li>
+      <li>Debone et al. (2025). The Cost of Heat: Health and Economic Burdens in Three Brazilian Cities. <em>Atmosphere</em> 16(7).</li>
+      <li>Geirinhas et al. (2020). Heat-related mortality in Rio de Janeiro. <em>Int. J. Biometeorology</em>.</li>
+    </ul>
+    <h2>Fontes</h2>
+    <ul id="sources"></ul>
+  </main>
+  <script type="module" src="metodologia.js"></script>
+</body>
+</html>

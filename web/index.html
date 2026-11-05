@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'" />
+  <meta name="referrer" content="no-referrer" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sombra — Mais sombra onde ela faz mais falta</title>
+  <meta name="description" content="Calor de superfície e vulnerabilidade para orientar arborização e proteção contra o calor nos municípios brasileiros." />
+  <link rel="icon" href="assets/icon.png" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="vendor/maplibre-gl.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header class="topbar">
+      <a class="brand" href="index.html" aria-label="Sombra, início"><img src="assets/logo.png" alt="sombra" /></a>
+      <nav aria-label="Principal">
+        <a href="index.html" aria-current="page">Explorar o mapa</a>
+        <a href="prioridades.html">Prioridades</a>
+        <a href="metodologia.html">Metodologia</a>
+        <a href="dados.html">Dados abertos</a>
+      </nav>
+      <label for="city-select" style="position:absolute;left:-9999px">Município</label>
+      <select id="city-select"></select>
+      <a class="btn-outline" id="download-link" href="dados.html">⬇ Baixar dados</a>
+    </header>
+    <p class="eyebrow">Clima, cidade e cuidado</p>
+    <div class="hero">
+      <div>
+        <h1>Mais sombra onde ela faz mais falta.</h1>
+        <p class="sub">Calor de superfície e vulnerabilidade para orientar investimentos na cidade.</p>
+      </div>
+      <div class="badge" id="demo-badge" hidden>Prévia • dados ilustrativos</div>
+    </div>
+
+    <main class="explorer">
+      <section class="card layers" aria-labelledby="layers-title">
+        <h2 id="layers-title">Explore as camadas</h2>
+        <fieldset style="border:0;padding:0;margin:0">
+          <legend class="small" style="position:absolute;left:-9999px">Camada do mapa</legend>
+          <label><span>Prioridade de ação</span><input type="radio" name="layer" value="priority" checked /></label>
+          <label><span>Calor de superfície</span><input type="radio" name="layer" value="heat" /></label>
+          <label><span>Vulnerabilidade</span><input type="radio" name="layer" value="vuln" /></label>
+          <label><span>Cobertura vegetal</span><input type="radio" name="layer" value="veg" /></label>
+        </fieldset>
+        <hr />
+        <label class="toggle"><span>Equipamentos públicos</span><input type="checkbox" id="equip" checked /></label>
+        <hr />
+        <p class="meta-line" id="ref-line"></p>
+        <p class="meta-line"><a href="metodologia.html#pesos">Entenda os pesos do índice ↗</a></p>
+        <p class="note">Calor de superfície não é temperatura do ar.</p>
+      </section>
+
+      <section class="mapbox" aria-label="Mapa de prioridade por setor censitário">
+        <form class="search" id="search-form" role="search">
+          <label for="search" style="position:absolute;left:-9999px">Buscar setor pelo código</label>
+          <input id="search" type="search" placeholder="Buscar setor pelo código" autocomplete="off" />
+        </form>
+        <div id="map"></div>
+        <div class="legend" id="legend" aria-label="Legenda"></div>
+        <div class="chip" id="map-chip"></div>
+      </section>
+
+      <aside class="card sector" aria-live="polite" id="sector-panel">
+        <p class="label">Setor selecionado</p>
+        <h2 id="s-title">Toque em um setor</h2>
+        <div id="s-body"><p class="small">Escolha um setor no mapa para ver os motivos da prioridade.</p></div>
+      </aside>
+    </main>
+
+    <h2 style="font-size:2rem">Do mapa à ação</h2>
+    <section class="actions">
+      <a class="card action" href="prioridades.html#arborizar" style="text-decoration:none"><div class="ico" aria-hidden="true">🌳</div><div><h3>Arborizar</h3><p>Priorize setores com calor e pouca vegetação.</p><strong>Explorar prioridades →</strong></div></a>
+      <a class="card action" href="prioridades.html#resfriamento" style="text-decoration:none"><div class="ico" aria-hidden="true">⛱</div><div><h3>Criar pontos de resfriamento</h3><p>Encontre equipamentos públicos próximos.</p><strong>Explorar prioridades →</strong></div></a>
+      <a class="card action" href="prioridades.html#busca-ativa" style="text-decoration:none"><div class="ico" aria-hidden="true">🤝</div><div><h3>Orientar a busca ativa</h3><p>Apoie o cuidado com pessoas idosas.</p><strong>Explorar prioridades →</strong></div></a>
+    </section>
+
+    <footer>
+      <span>Dados abertos. Critérios transparentes. Decisões melhores.</span>
+      <a href="metodologia.html#limitacoes">Fontes e limitações ↗</a>
+    </footer>
+  </div>
+  <script src="vendor/maplibre-gl.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

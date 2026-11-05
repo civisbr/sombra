@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'" />
+  <meta name="referrer" content="no-referrer" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dados abertos — Sombra</title>
+  <meta name="description" content="Baixe os dados do Sombra por setor censitário em CSV, GeoJSON e GeoParquet." />
+  <link rel="icon" href="assets/icon.png" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header class="topbar">
+      <a class="brand" href="index.html" aria-label="Sombra, início"><img src="assets/logo.png" alt="sombra" /></a>
+      <nav aria-label="Principal">
+        <a href="index.html">Explorar o mapa</a>
+        <a href="prioridades.html">Prioridades</a>
+        <a href="metodologia.html">Metodologia</a>
+        <a href="dados.html" aria-current="page">Dados abertos</a>
+      </nav>
+      <label for="city-select" style="position:absolute;left:-9999px">Município</label>
+      <select id="city-select"></select>
+      <a class="btn-outline" id="download-link" href="dados.html">⬇ Baixar dados</a>
+    </header>
+  </div>
+  <main class="page">
+    <h1>Dados abertos</h1>
+    <div class="demo-banner" id="demo-banner" hidden>Prévia com dados ilustrativos: não use estes números para decidir nada.</div>
+    <p id="ref-line" class="small"></p>
+    <ul id="downloads"></ul>
+    <h2>Licenças</h2>
+    <p>Código: MIT. Dados derivados: CC BY 4.0, citando NASA/USGS (Landsat), ESA/Copernicus (Sentinel-2), IBGE, INMET e DATASUS. Só há agregados por setor censitário; nenhum dado individual.</p>
+    <h2>Campos</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Campo</th><th>Significado</th></tr></thead>
+      <tbody id="fields"></tbody>
+    </table></div>
+  </main>
+  <script type="module" src="dados.js"></script>
+</body>
+</html>
