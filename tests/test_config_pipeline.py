@@ -61,3 +61,65 @@ def test_real_run_fails_clearly_when_not_implemented(capsys):
 def test_validate_ibge_rejects_unicode_digits():
     with pytest.raises(ValueError):
         validate_ibge("١٢٣٤٥٦٧")
+
+
+def _fake_boundary(code="3552205", geom_type="Polygon"):
+    return {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "properties": {"codarea": code},
+                "geometry": {"type": geom_type, "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 0]]]},
+            }
+        ],
+    }
+
+
+def test_boundary_in_repo_is_valid():
+    from sombra.ingest.ibge import boundary_path, validate_boundary
+
+    data = json.loads(boundary_path("3552205").read_text(encoding="utf-8"))
+    validate_boundary(data, "3552205")
+
+
+def test_fetch_boundary_validates_and_writes_atomically(tmp_path, monkeypatch):
+    import io
+
+    from sombra.ingest import ibge
+
+    payload = json.dumps(_fake_boundary()).encode()
+    monkeypatch.setattr(ibge.urllib.request, "urlopen", lambda url, timeout: io.BytesIO(payload))
+    path = ibge.fetch_boundary("3552205", cities_dir=tmp_path, force=True)
+    assert json.loads(path.read_text())["features"][0]["properties"]["codarea"] == "3552205"
+    assert not list(tmp_path.glob("*.tmp"))
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        b"[]",
+        json.dumps(_fake_boundary("9999999")).encode(),
+        json.dumps(_fake_boundary(geom_type="Point")).encode(),
+    ],
+)
+def test_fetch_boundary_rejects_bad_payload(tmp_path, monkeypatch, payload):
+    import io
+
+    from sombra.ingest import ibge
+
+    monkeypatch.setattr(ibge.urllib.request, "urlopen", lambda url, timeout: io.BytesIO(payload))
+    with pytest.raises(RuntimeError):
+        ibge.fetch_boundary("3552205", cities_dir=tmp_path, force=True)
+    assert not list(tmp_path.iterdir())
+
+
+def test_missing_boundary_removes_stale_copy(tmp_path, monkeypatch):
+    import sombra.publish.export_web as ew
+
+    out = tmp_path / "x"
+    out.mkdir()
+    (out / "boundary.geojson").write_text("{}")
+    monkeypatch.setattr(ew, "boundary_path", lambda ibge: tmp_path / "nao-existe.geojson")
+    ew._copy_boundary("3552205", out)
+    assert not (out / "boundary.geojson").exists()

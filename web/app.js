@@ -18,10 +18,11 @@ const EQUIP_NAMES = { ubs: "UBS", escola: "Escola", biblioteca: "Biblioteca" };
 
 const { cities, code } = await loadCities();
 const base = `data/${code}`;
-const [meta, gj, actions] = await Promise.all([
+const [meta, gj, actions, boundary] = await Promise.all([
   getJSON(`${base}/meta.json`),
   getJSON(`${base}/sectors.geojson`),
   getJSON(`${base}/actions.json`),
+  getJSON(`${base}/boundary.geojson`).catch(() => null),
 ]);
 setupHeader(cities, code, meta);
 document.getElementById("demo-banner").hidden = !meta.demo;
@@ -59,6 +60,10 @@ function renderLegend(layer) {
   const box = document.getElementById("legend");
   box.replaceChildren();
   box.append(el("strong", { text: LAYERS[layer].title.split(" (")[0] }));
+  if (boundary) {
+    const b = el("i", { class: "swatch-boundary" });
+    box.append(el("span", {}, b, `Limite de ${meta.name}`));
+  }
   if (layer === "priority") {
     CLASS_NAMES.forEach((n, i) => {
       const i_ = el("i");
@@ -99,18 +104,33 @@ if (meta.demo) chip.textContent = "Setores sintéticos sobre mapa real · não s
 if (!basemap.ok) chip.textContent = `${chip.textContent ? `${chip.textContent} · ` : ""}mapa-base indisponível`;
 if (!chip.textContent) chip.hidden = true;
 
+function boundsOf(fc) {
+  let box = null;
+  const visit = (c) => {
+    if (typeof c[0] === "number") {
+      box = box ? [Math.min(box[0], c[0]), Math.min(box[1], c[1]), Math.max(box[2], c[0]), Math.max(box[3], c[1])] : [c[0], c[1], c[0], c[1]];
+    } else for (const x of c) visit(x);
+  };
+  for (const f of fc.features ?? []) if (f.geometry?.coordinates) visit(f.geometry.coordinates);
+  return box;
+}
+const boundaryBox = boundary ? boundsOf(boundary) : null;
+const viewBounds = boundaryBox
+  ? [Math.min(boundaryBox[0], meta.bounds[0]), Math.min(boundaryBox[1], meta.bounds[1]), Math.max(boundaryBox[2], meta.bounds[2]), Math.max(boundaryBox[3], meta.bounds[3])]
+  : meta.bounds;
+
 const map = new maplibregl.Map({
   container: "map",
   style: basemap.style,
-  bounds: meta.bounds,
+  bounds: viewBounds,
   fitBoundsOptions: { padding: 30 },
-  minZoom: 9,
+  minZoom: 8,
   maxZoom: 17,
   maxBounds: [
-    [meta.bounds[0] - 0.25, meta.bounds[1] - 0.25],
-    [meta.bounds[2] + 0.25, meta.bounds[3] + 0.25],
+    [viewBounds[0] - 0.25, viewBounds[1] - 0.25],
+    [viewBounds[2] + 0.25, viewBounds[3] + 0.25],
   ],
-  attributionControl: { compact: true, customAttribution: "© colaboradores do OpenStreetMap" },
+  attributionControl: { compact: true, customAttribution: "© colaboradores do OpenStreetMap · Malha municipal © IBGE" },
 });
 map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
 
@@ -169,6 +189,11 @@ map.on("load", () => {
       "circle-stroke-width": 2,
     },
   });
+  if (boundary) {
+    map.addSource("boundary", { type: "geojson", data: boundary });
+    map.addLayer({ id: "boundary-casing", type: "line", source: "boundary", paint: { "line-color": "#ffffff", "line-width": 6, "line-opacity": 0.9 } });
+    map.addLayer({ id: "boundary", type: "line", source: "boundary", paint: { "line-color": "#1d4ed8", "line-width": 3 } });
+  }
   renderLegend("priority");
   map.on("click", "fill", (e) => {
     if (map.queryRenderedFeatures(e.point, { layers: ["equip"] }).length) return;

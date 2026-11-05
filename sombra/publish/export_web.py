@@ -3,12 +3,14 @@
 import csv
 import json
 import os
+import shutil
 from pathlib import Path
 
 import numpy as np
 from shapely.geometry import mapping
 
 from sombra.config import ROOT
+from sombra.ingest.ibge import boundary_path
 from sombra.pipeline import Result
 
 WEB_DATA = ROOT / "web" / "data"
@@ -116,9 +118,20 @@ def export(result: Result, demo: bool, reference_date: str, out_dir: Path | None
         "weights": "pesos iguais entre indicadores e entre componentes",
     }
     (out / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=1), encoding="utf-8")
+    _copy_boundary(city.ibge, out)
     _write_geoparquet(out)
     _update_index(out.parent, meta)
     return out
+
+
+def _copy_boundary(ibge: str, out: Path) -> None:
+    src = boundary_path(ibge)
+    target = out / "boundary.geojson"
+    target.unlink(missing_ok=True)
+    if src.exists():
+        shutil.copyfile(src, target)
+    else:
+        print(f"aviso: sem contorno municipal ({src.name}); rode `sombra boundary --city {ibge}`")
 
 
 def _write_geoparquet(out: Path) -> None:

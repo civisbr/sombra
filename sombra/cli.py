@@ -39,11 +39,18 @@ def main(argv: list[str] | None = None) -> int:
     run = sub.add_parser("run", help="roda o pipeline para um município")
     run.add_argument("--city", required=True, help="código IBGE de 7 dígitos")
     run.add_argument("--demo", action="store_true", help="usa a cidade sintética (sem rede)")
+    bnd = sub.add_parser("boundary", help="baixa o contorno oficial do município (IBGE)")
+    bnd.add_argument("--city", required=True)
     args = parser.parse_args(argv)
     try:
         validate_ibge(args.city)
-        (run_demo if args.demo else run_real)(args.city)
-    except (ValueError, FileNotFoundError, NotImplementedError) as exc:
+        if args.cmd == "boundary":
+            from sombra.ingest.ibge import fetch_boundary
+
+            print(fetch_boundary(args.city, force=True))
+        else:
+            (run_demo if args.demo else run_real)(args.city)
+    except (ValueError, FileNotFoundError, NotImplementedError, RuntimeError, OSError) as exc:
         print(f"erro: {exc}", file=sys.stderr)
         return 1
     return 0
