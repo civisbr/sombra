@@ -58,14 +58,14 @@ jobs:
           path: web
       - name: Cria o projeto Cloudflare Pages se ainda não existir
         continue-on-error: true
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           wranglerVersion: "4.157.0"
           command: pages project create sombra --production-branch=main
       - id: cf
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/wrangler-action@v4
         with:
           wranglerVersion: "4.157.0"
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
