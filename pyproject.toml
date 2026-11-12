@@ -23,7 +23,7 @@ ingest = [
 ]
 
 [dependency-groups]
-dev = ["pytest>=8.0", "ruff>=0.6"]
+dev = ["pytest>=8.0", "ruff>=0.17.4"]
 
 [project.scripts]
 sombra = "sombra.cli:main"
